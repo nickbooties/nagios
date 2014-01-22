@@ -4,6 +4,9 @@ from HTMLParser import HTMLParser
 username = "username"
 password = "password"
 
+# define usage alert borders
+limits = {'warning': 75,'critical': 90}
+
 curmonth = time.strftime("%Y%m%d")
 
 params = ({"username": username, "password": password, "action": "login","period": curmonth})
@@ -49,24 +52,28 @@ parser = MyParser()
 parser.feed(response.read())
 
 raw = parser.data
-usage_array = raw[0].replace("MB","").split()
-usage = float(usage_array[0].replace(",",""))
-quota = float(usage_array[3].replace(",",""))
 
-percent_used = int((usage/quota) * 100)
+if len(raw) > 1:
+    usage_array = raw[0].replace("MB","").split()
+    usage = float(usage_array[0].replace(",",""))
+    quota = float(usage_array[3].replace(",",""))
 
-#0 - 75
-if percent_used < 75:
-    print "OK -", str(percent_used)+"% used."
-    exit(0)
-# 75 - 90
-elif percent_used < 90:
-    print "WARNING -",str(percent_used)+"% used."
-    exit(1)
-#90+
-elif percent_used > 90:
-    print "CRITICAL -",str(percent_used)+"% used."
-    exit(2)
+    percent_used = int((usage/quota) * 100)
+else:
+    percent_used = -1
+
+if percent_used >= 0:
+    if percent_used < limits['warning']:
+        print "OK -", str(percent_used)+"% used."
+        exit(0)
+    # 75 - 90
+    elif percent_used < limits['critical']:
+        print "WARNING -",str(percent_used)+"% used."
+        exit(1)
+    #90+
+    elif percent_used >= limits['critical']:
+        print "CRITICAL -",str(percent_used)+"% used."
+        exit(2)
 else:
     print "UNKNOWN - unable to determine use: ",percent_used
     exit(3)
