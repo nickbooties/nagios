@@ -2,7 +2,7 @@
 #usage.py
 #Nick Booth 2FEB2014
 #nicbooth@gmail.com
-import urllib2, re, cookielib
+import urllib, urllib2, re, cookielib
 
 username = ""
 password = ""
